@@ -12,7 +12,7 @@ const listingSchema = Joi.object({
     }).required()
 });
 
-module.exports = listingSchema;
+module.exports = { listingSchema };
 
 module.exports.reviewSchema = Joi.object({
     review : Joi.object({
