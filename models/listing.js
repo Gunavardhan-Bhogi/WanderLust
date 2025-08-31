@@ -1,4 +1,4 @@
-const { ref } = require("joi");
+const { ref, required } = require("joi");
 const mongoose = require("mongoose");
 const listingSchema = require("../schema");
 const Schema = mongoose.Schema;
@@ -11,9 +11,8 @@ const ListingSchema = new Schema({
     },
     description: String,
     image: {
-        type: String,
-        default: "https://unsplash.com/photos/tropical-background-of-isolated-palm-tree-with-warm-sunset-behind-3d-render-fgI7wgPzQuc",
-        set: (v) => v==="" ? "https://unsplash.com/photos/tropical-background-of-isolated-palm-tree-with-warm-sunset-behind-3d-render-fgI7wgPzQuc" : v,
+        url: String,
+        filename: String,
     },
     price: Number,
     location: String,
@@ -28,6 +27,17 @@ const ListingSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
     },
+    geometry: {
+        type: {
+            type: String,
+            enum: ['Point'],
+            required: true
+        },
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    }
 });
 
 ListingSchema.post("findOneAndDelete", async (listing) => {
