@@ -16,6 +16,12 @@ router
 //new route
 router.get("/new", isLoggedIn,listingController.renderNewForm);
 
+// Category filter route (must come before :id routes)
+router.get("/category/:category", wrapAsync(listingController.filterByCategory));
+
+// Search listings
+router.get("/search", wrapAsync(listingController.searchListings));
+
 
 router
 .route("/:id")

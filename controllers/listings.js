@@ -5,7 +5,7 @@ const geocodingClient = mbxGeocoding({ accessToken: mapToken});
 
 module.exports.index = async (req,res) => {
     const allListings = await Listing.find({});
-    res.render("listings/index.ejs",{ allListings });
+    res.render("listings/index.ejs",{ allListings,category : "" });
 };
 
 module.exports.renderNewForm = (req,res) => {
@@ -23,6 +23,35 @@ module.exports.showListing = async (req,res) =>{
     }
     res.render("listings/show.ejs",{ listing });
 };
+
+module.exports.filterByCategory = async (req, res) => {
+    const { category } = req.params;
+    const allListings = await Listing.find({ category });  // fetch listings only in this category
+    if (!allListings.length) {
+        req.flash("error", `No listings found for category: ${category}`);
+        return res.redirect("/listings");
+    }
+    res.render("listings/index.ejs", { allListings, category});
+};
+
+
+module.exports.searchListings = async (req, res) => {
+    const { q } = req.query; 
+    if (!q) {
+        req.flash("error", "Please enter a location or name to search");
+        return res.redirect("/listings");
+    }
+
+    const allListings = await Listing.find({
+        $or: [
+            { location: { $regex: q, $options: "i" } },
+            { title: { $regex: q, $options: "i" } }
+        ]
+    });
+
+    res.render("listings/index.ejs", { allListings, category: "" });
+};
+
 
 module.exports.createListing = async (req,res, next) => {
     let response = await geocodingClient.forwardGeocode({
@@ -53,7 +82,6 @@ module.exports.renderEditForm = async (req,res) =>{
 
     let originalImageUrl = listing.image.url;
     originalImageUrl = originalImageUrl.replace("/upload","/upload/h_250,w_250")
-    console.log(originalImageUrl);
     res.render("listings/edit.ejs",{ listing ,originalImageUrl});
 };
 
@@ -74,7 +102,6 @@ module.exports.updateListing = async (req,res) =>{
 module.exports.destroyListing = async (req,res) => {
     let { id } = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
     req.flash("success" ,"Listing Deleted");
     res.redirect("/listings");
 };

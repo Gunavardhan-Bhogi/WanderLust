@@ -30,7 +30,11 @@ main().then(() => {
 });
 
 async function main() {
-    await mongoose.connect(dbUrl);
+    await mongoose.connect(dbUrl,{
+        useNewUrlParser:true,
+        useUnifiedTopology:true,
+        tlsAllowInvalidCertificates: true
+    });
 };
 
 app.set("view engine" ,"ejs");
